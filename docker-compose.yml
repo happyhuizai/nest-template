@@ -1,0 +1,38 @@
+version: "3"
+
+name: nestjs-template
+services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD
+      - TZ=${TZ}
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - ${MYSQL_PORT}:3306
+    network_mode: "bridge"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+
+  redis:
+    image: redis:7
+    restart: always 
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - redis:/data
+    ports:
+        - ${REDIS_PORT}:6379
+    network_mode: "bridge"
+    command: 
+      - --requirepass ${REDIS_PASSWORD}
+volumes:
+  mysql:
+  redis:
