@@ -1,17 +1,14 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://hz:GtgnK4%23YRp%rpGfFm36N%25ODKeuAfPb@127.0.0.1:23454/demo"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  uuid    Int     @default(autoincrement()) @id
-  username String  @unique
-  password  String
+  uuid     Int    @id @default(autoincrement())
+  username String @unique
+  password String
 }

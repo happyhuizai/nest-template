@@ -3,7 +3,6 @@ import {
   Module,
   ValidationPipe,
   Logger,
-  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -109,23 +108,20 @@ import type { QueryInfo } from 'nestjs-prisma';
       useClass: TransformInterceptor,
     },
     {
-      provide: APP_INTERCEPTOR,
-      useClass: ClassSerializerInterceptor,
-    },
-    {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({
-        // transformOptions: {
-        //   excludeExtraneousValues: true,
-        // },
+        whitelist: true,
+        stopAtFirstError: true,
+        transform: true,
         exceptionFactory(errors) {
           const constraints = errors[0].constraints;
-          const message =
-            constraints?.[Object.keys(constraints || {})[0]] || '';
+          const message = constraints
+            ? constraints[Object.keys(constraints)[0]]
+            : '请求格式不正确';
           throw new BadRequestException(message);
         },
       }),

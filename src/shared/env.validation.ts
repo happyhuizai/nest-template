@@ -7,7 +7,6 @@ import {
   IsStrongPassword,
   Min,
   Max,
-  Length,
   IsNumber,
   IsEnum,
 } from 'class-validator';
@@ -61,11 +60,11 @@ export class EnvironmentVariables {
   MYSQL_USER: string;
 
   @IsString()
-  @Length(25)
+  @IsStrongPassword()
   MYSQL_PASSWORD: string;
 
   @IsString()
-  @Length(25)
+  @IsStrongPassword()
   MYSQL_ROOT_PASSWORD: string;
 
   @IsString()
@@ -81,7 +80,7 @@ export class EnvironmentVariables {
   REDIS_DB: string;
 
   @IsString()
-  @Length(25)
+  @IsStrongPassword()
   REDIS_PASSWORD: string;
 }
 

@@ -33,14 +33,14 @@ export class AuthService {
         ...token,
         username,
       };
-    } catch (e) {
+    } catch (error) {
       if (
-        e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === 'P2002'
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
       ) {
         throw new UnauthorizedException('用户名重复');
       }
-      throw new Error(e);
+      throw new BadRequestException(error.message || '创建用户失败');
     }
   }
 
@@ -77,7 +77,9 @@ export class AuthService {
     const refreshTokenSecret = this.configService.get('JWT_REFRESH_KEY', {
       infer: true,
     });
-    const maxRefreshCount = this.configService.get('REFRESH_JWT_MAX_COUNT');
+    const maxRefreshCount = this.configService.get('REFRESH_JWT_MAX_COUNT', {
+      infer: true,
+    });
     const refreshToken = this.jwtService.sign(
       { uuid },
       { expiresIn: refreshTokenExpires, secret: refreshTokenSecret },

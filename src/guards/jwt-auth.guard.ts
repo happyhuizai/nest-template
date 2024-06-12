@@ -25,11 +25,11 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   handleRequest<TUser = Prisma.UserCreateInput | never>(
-    err: Error,
+    error: Error,
     user?: TUser,
   ): TUser {
-    if (err || !user) {
-      throw err || new UnauthorizedException('登录凭证无效请重新登录');
+    if (error || !user) {
+      throw error || new UnauthorizedException('登录凭证无效请重新登录');
     }
     return user;
   }

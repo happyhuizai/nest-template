@@ -8,17 +8,17 @@ import type { Prisma } from '@prisma/client';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  findOneUser(info: Prisma.UserWhereUniqueInput) {
+  findOneUser(user: Prisma.UserWhereUniqueInput) {
     return this.prisma.user.findUnique({
-      where: info,
+      where: user,
     });
   }
 
-  async createUser(info: Prisma.UserCreateInput) {
-    const password = await argon2.hash(info.password);
+  async createUser(user: Prisma.UserCreateInput) {
+    const password = await argon2.hash(user.password);
     return await this.prisma.user.create({
       data: {
-        ...info,
+        ...user,
         password,
       },
     });
