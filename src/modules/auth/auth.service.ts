@@ -14,7 +14,7 @@ import { UserService } from '../user/user.service';
 import { refreshTokenCacheKey } from '../../shared/redis.keys';
 
 import type { EnvironmentVariables } from '../../shared/env.validation';
-import type { CreateUserDto } from './dto/auth.dto';
+import type { CreateUserDto, LoginDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,11 +27,12 @@ export class AuthService {
 
   async createUser(user: CreateUserDto) {
     try {
-      const { uuid, username } = await this.userService.createUser(user);
-      const token = await this.generateUserTokens(uuid);
+      const { id, username, email } = await this.userService.createUser(user);
+      const token = await this.generateUserTokens(id);
       return {
         ...token,
         username,
+        email,
       };
     } catch (error) {
       if (
@@ -44,7 +45,7 @@ export class AuthService {
     }
   }
 
-  async validateUserLocal(info: Prisma.UserCreateInput) {
+  async validateUserLocal(info: LoginDto) {
     const { username, password } = info;
     const user = await this.userService.findOneUser({
       username,
@@ -59,9 +60,9 @@ export class AuthService {
     return user;
   }
 
-  async validateUserJwt(uuid: number) {
+  async validateUserJwt(id: number) {
     const user = await this.userService.findOneUser({
-      uuid,
+      id,
     });
     if (!user) {
       throw new UnauthorizedException('登录凭证无效请重新登录');
@@ -69,8 +70,8 @@ export class AuthService {
     return user;
   }
 
-  async generateUserTokens(uuid: number, refreshCount?: number) {
-    const accessToken = this.jwtService.sign({ uuid });
+  async generateUserTokens(id: number, refreshCount?: number) {
+    const accessToken = this.jwtService.sign({ id });
     const refreshTokenExpires = this.configService.get('REFRESH_JWT_EXPIRES', {
       infer: true,
     });
@@ -81,11 +82,11 @@ export class AuthService {
       infer: true,
     });
     const refreshToken = this.jwtService.sign(
-      { uuid },
+      { id },
       { expiresIn: refreshTokenExpires, secret: refreshTokenSecret },
     );
     await this.redis.set(
-      refreshTokenCacheKey(uuid),
+      refreshTokenCacheKey(id),
       JSON.stringify({
         refreshToken,
         refreshCount: refreshCount || maxRefreshCount,
@@ -101,10 +102,10 @@ export class AuthService {
 
   async refreshToken(refreshToken: string) {
     try {
-      const { uuid } = this.jwtService.verify(refreshToken, {
+      const { id } = this.jwtService.verify(refreshToken, {
         secret: this.configService.get('JWT_REFRESH_KEY'),
       });
-      const refreshTokenData = await this.redis.get(refreshTokenCacheKey(uuid));
+      const refreshTokenData = await this.redis.get(refreshTokenCacheKey(id));
       if (!refreshTokenData) {
         throw new BadRequestException('刷新凭证无效请重新登录');
       }
@@ -119,7 +120,7 @@ export class AuthService {
       if (refreshCount > maxRefreshCount) {
         throw new BadRequestException('刷新凭证次数已达上限，请重新登录');
       }
-      return this.generateUserTokens(uuid, refreshCount + 1);
+      return this.generateUserTokens(id, refreshCount + 1);
     } catch (error) {
       throw new BadRequestException('刷新凭证无效请重新登录');
     }

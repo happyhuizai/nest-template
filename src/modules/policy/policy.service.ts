@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePolicyDto } from './dto/create-policy.dto';
-import { UpdatePolicyDto } from './dto/update-policy.dto';
+
+import type { CreatePolicyDto } from './dto/create-policy.dto';
+import type { UpdatePolicyDto } from './dto/update-policy.dto';
 
 @Injectable()
 export class PolicyService {

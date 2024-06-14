@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 
 import type { CreateRoleDto } from './dto/create-role.dto';
@@ -25,9 +25,8 @@ export class RoleService {
     });
   }
 
-  async update(userId: number, roleId: number, updateRoleDto: UpdateRoleDto) {
-    await this.userHasRole(userId, roleId);
-    this.prisma.role.update({
+  async update(roleId: number, updateRoleDto: UpdateRoleDto) {
+    return this.prisma.role.update({
       where: {
         id: roleId,
       },
@@ -35,38 +34,11 @@ export class RoleService {
     });
   }
 
-  async remove(userId: number, roleId: number) {
-    await this.userHasRole(userId, roleId);
+  async remove(roleId: number) {
     return this.prisma.role.delete({
       where: {
         id: roleId,
       },
     });
-  }
-  async findUserRole(userId: number) {
-    return await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        groups: {
-          include: {
-            group: {
-              include: {
-                roles: true,
-              },
-            },
-          },
-        },
-      },
-    });
-  }
-  async userHasRole(userId: number, roleId: number): Promise<boolean> {
-    const user = await this.findUserRole(userId);
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-    const roles = user.groups.flatMap((group) =>
-      group.group.roles.map((role) => role.id),
-    );
-    return roles.includes(roleId);
   }
 }

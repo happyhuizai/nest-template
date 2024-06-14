@@ -17,8 +17,8 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   async login(@CurrentUser() user: User) {
-    const { username, uuid } = user;
-    const tokens = await this.authService.generateUserTokens(uuid);
+    const { username, id } = user;
+    const tokens = await this.authService.generateUserTokens(id);
     return {
       username,
       ...tokens,

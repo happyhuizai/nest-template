@@ -7,8 +7,6 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { CurrentUser } from 'src/decorators/current-user.decorator';
-import { User } from '@prisma/client';
 
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
@@ -34,16 +32,12 @@ export class RoleController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: number,
-    @Body() updateRoleDto: UpdateRoleDto,
-    @CurrentUser() user: User,
-  ) {
-    return this.roleService.update(user.id, id, updateRoleDto);
+  update(@Param('id') id: number, @Body() updateRoleDto: UpdateRoleDto) {
+    return this.roleService.update(id, updateRoleDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number, @CurrentUser() user: User) {
-    return this.roleService.remove(user.id, id);
+  remove(@Param('id') id: number) {
+    return this.roleService.remove(id);
   }
 }
