@@ -30,6 +30,11 @@ import { validate } from './shared/env.validation';
 
 import type { EnvironmentVariables } from './shared/env.validation';
 import type { QueryInfo } from 'nestjs-prisma';
+import { RoleModule } from './modules/role/role.module';
+import { PolicyModule } from './modules/policy/policy.module';
+import { GroupModule } from './modules/group/group.module';
+import { MenuModule } from './modules/menu/menu.module';
+import { RoleModule } from './modules/role/role.module';
 
 @Module({
   imports: [
@@ -86,6 +91,10 @@ import type { QueryInfo } from 'nestjs-prisma';
       ],
     }),
     AuthModule,
+    RoleModule,
+    MenuModule,
+    GroupModule,
+    PolicyModule,
   ],
   providers: [
     {
