@@ -1,154 +1,82 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator class_validator {
-  provider = "prisma-class-validator-generator"
+generator client {
+  provider = "prisma-client-js"
 }
 
-/// 用户组模型
-model Group {
-  id        Int         @id @default(autoincrement()) /// 主键，自增
-  isDeleted Boolean     @default(false) /// 是否已删除，默认为否
-  createdAt DateTime    @default(now()) /// 创建时间，默认为当前时间
-  updatedAt DateTime    @updatedAt() /// 更新时间
-  name      String /// 组名
-  roles     GroupRole[] /// 用户组角色关联
-  users     UserGroup[] /// 用户组关联关系
-}
-
-/// 用户组角色关联模型
-model GroupRole {
-  id      Int   @id @default(autoincrement()) /// 主键，自增
-  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade) /// 用户组关联
-  groupId Int /// 用户组ID
-  role    Role  @relation(fields: [roleId], references: [id]) /// 角色关联
-  roleId  Int /// 角色ID
-
-  @@unique([groupId, roleId]) /// 唯一约束
-}
-
-/// 用户组关联关系模型
-model UserGroup {
-  id        Int      @id @default(autoincrement()) /// 主键，自增
-  createdAt DateTime @default(now()) /// 创建时间，默认为当前时间
-  updatedAt DateTime @updatedAt() /// 更新时间
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade) /// 用户关联
-  userId    Int /// 用户ID
-  group     Group    @relation(fields: [groupId], references: [id]) /// 用户组关联
-  groupId   Int /// 用户组ID
-
-  @@unique([userId, groupId])
-}
-
-/// 用户模型
-model User {
-  id        Int         @id @default(autoincrement()) /// 主键，自增
-  createdAt DateTime    @default(now()) /// 创建时间，默认为当前时间
-  updatedAt DateTime    @updatedAt() /// 更新时间
-  isDeleted Boolean     @default(false) /// 是否已删除，默认为否
-  username  String      @unique /// 用户名，唯一
-  email     String      @unique /// 邮箱，唯一
-  password  String /// 密码
-  groups    UserGroup[] /// 用户组关联关系
-}
-
-/// 角色模型
-model Role {
-  id          Int              @id @default(autoincrement()) /// 主键，自增
-  createdAt   DateTime         @default(now()) /// 创建时间，默认为当前时间
-  updatedAt   DateTime         @updatedAt() /// 更新时间
-  isDeleted   Boolean          @default(false) /// 是否已删除，默认为否
-  name        String           @unique /// 角色名，唯一
-  groupRoles  GroupRole[] /// 角色用户组关联
-  permissions PermissionRole[] /// 角色权限关联
-}
-
-/// 角色权限关联模型
-model PermissionRole {
-  id           Int        @id @default(autoincrement()) /// 主键，自增
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade) /// 角色关联
-  roleId       Int /// 角色ID
-  permission   Permission @relation(fields: [permissionId], references: [id]) /// 权限关联
-  permissionId Int /// 权限ID
-
-  @@unique([roleId, permissionId]) /// 唯一约束
-}
-
-/// 权限模型
-model Permission {
-  id        Int              @id @default(autoincrement()) /// 主键，自增
-  createdAt DateTime         @default(now()) /// 创建时间，默认为当前时间
-  updatedAt DateTime         @updatedAt() /// 更新时间
-  isDeleted Boolean          @default(false) /// 是否已删除，默认为否
-  name      String           @unique /// 权限名，唯一
-  roles     PermissionRole[] /// 权限角色关联
-  menus     PermissionMenu[] /// 权限菜单关联
-  rules     PermissionPolicy[] /// 权限规则关联
-}
-
-/// 权限菜单关联模型
-model PermissionMenu {
-  id           Int        @id @default(autoincrement()) /// 主键，自增
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade) /// 权限关联
-  permissionId Int /// 权限ID
-  menu         Menu       @relation(fields: [menuId], references: [id]) /// 菜单关联
-  menuId       Int /// 菜单ID
-
-  @@unique([permissionId, menuId]) /// 唯一约束
-}
-
-/// 菜单模型
-model Menu {
-  id          Int              @id @default(autoincrement()) /// 主键，自增
-  createdAt   DateTime         @default(now()) /// 创建时间，默认为当前时间
-  updatedAt   DateTime         @updatedAt() /// 更新时间
-  isDeleted   Boolean          @default(false) /// 是否已删除，默认为否
-  name        String /// 菜单名
-  type        MenuType /// 菜单类型
-  icon        String? /// 菜单图标
-  order       Int? /// 排序
-  route       String? /// 菜单路由
-  component   String? /// 组件
-  keepAlive   Boolean? /// 是否保持页面状态（前端框架使用）
-  hidden      Boolean?          @default(false) /// 是否隐藏，默认为否
-  outlink     String? /// 外部链接，如果菜单是一个外部链接的话
-  parentId    Int? /// 父菜单ID
-  permissions PermissionMenu[] /// 菜单权限关联
-}
-
-/// 权限规则关联模型
-model PermissionPolicy {
-  id           Int        @id @default(autoincrement()) /// 主键，自增
-  rule         Policy       @relation(fields: [ruleId], references: [id], onDelete: Cascade) /// 规则关联
-  ruleId       Int /// 规则ID
-  permission   Permission @relation(fields: [permissionId], references: [id]) /// 权限关联
-  permissionId Int /// 权限ID
-
-  @@unique([ruleId, permissionId]) /// 唯一约束
-}
-
-/// 规则模型
-model Policy {
-  id          Int              @id @default(autoincrement()) /// 主键，自增
-  createdAt   DateTime         @default(now()) /// 创建时间，默认为当前时间
-  updatedAt   DateTime         @updatedAt() /// 更新时间
-  action      String /// 规则操作
-  subject     String /// 规则主题
-  fields      Json? /// 规则字段，存储为 JSON 格式
-  conditions  Json? /// 规则条件，可以存储为 JSON 格式
-  inverted    Boolean?          @default(false) /// 是否反转规则，默认为否
-  reason      String? /// 规则禁止原因
-  permissions PermissionPolicy[] /// 新增：规则权限关联
-}
-
-/// 菜单类型枚举
 enum MenuType {
-  DIRECTORY /// 目录
-  MENU /// 菜单
+  DIRECTORY
+  MENU
+}
+
+model Group {
+  id        Int      @id() @default(autoincrement())
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+  name      String
+  users     User[]
+  roles     Role[]
+}
+
+model User {
+  id        Int      @id() @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+  isDeleted Boolean  @default(false)
+  username  String   @unique()
+  email     String   @unique()
+  password  String
+  groups    Group[]
+}
+
+model Role {
+  id          Int          @id() @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt()
+  isDeleted   Boolean      @default(false)
+  name        String       @unique()
+  groups      Group[]
+  permissions Permission[]
+}
+
+model Permission {
+  id        Int      @id() @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+  isDeleted Boolean  @default(false)
+  name      String   @unique()
+  roles     Role[]
+  menus     Menu[]
+  policies  Policy[]
+}
+
+model Menu {
+  id          Int          @id() @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt()
+  isDeleted   Boolean      @default(false)
+  name        String
+  type        MenuType
+  icon        String?
+  order       Int?
+  route       String?
+  component   String?
+  keepAlive   Boolean?
+  hidden      Boolean?     @default(false)
+  outlink     String?
+  parentId    Int?
+  permissions Permission[]
+}
+
+model Policy {
+  id          Int          @id() @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt()
+  action      String
+  subject     String
+  permissions Permission[]
 }

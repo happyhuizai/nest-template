@@ -1,8 +1,14 @@
 import { Expose } from 'class-transformer';
+import { IsOptional, IsString } from 'class-validator';
 
 export class PaginationResDto<T> {
-  @Expose()
-  total: number;
+  @IsOptional()
+  @IsString()
+  cursor: string;
+
+  @IsOptional()
+  @IsString()
+  limit: number;
   @Expose()
   items: T[];
 }

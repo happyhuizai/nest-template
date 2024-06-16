@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { PUBLIC_KEY } from '../decorators/public.decorator';
 
 import type { Prisma } from '@prisma/client';
 import type { ExecutionContext } from '@nestjs/common';
@@ -14,7 +14,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   canActivate(context: ExecutionContext) {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+    const isPublic = this.reflector.getAllAndOverride<boolean>(PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
@@ -29,7 +29,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     user?: TUser,
   ): TUser {
     if (error || !user) {
-      throw error || new UnauthorizedException('登录凭证无效请重新登录');
+      throw (
+        error ||
+        new UnauthorizedException(
+          'Invalid login credentials. Please log in again.',
+        )
+      );
     }
     return user;
   }

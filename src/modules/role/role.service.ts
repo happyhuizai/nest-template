@@ -14,7 +14,7 @@ export class RoleService {
   }
 
   findAll() {
-    return this.prisma.rule.findMany();
+    return this.prisma.role.findMany();
   }
 
   findOne(id: number) {

@@ -10,7 +10,10 @@ export class LocalAuthGuard extends AuthGuard('local') {
     user?: TUser,
   ): TUser {
     if (error || !user) {
-      throw error || new UnauthorizedException('请输入用户名和密码');
+      throw (
+        error ||
+        new UnauthorizedException('Please enter your username and password.')
+      );
     }
     return user;
   }

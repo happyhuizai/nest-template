@@ -14,7 +14,7 @@ import { UserService } from '../user/user.service';
 import { refreshTokenCacheKey } from '../../shared/redis.keys';
 
 import type { EnvironmentVariables } from '../../shared/env.validation';
-import type { CreateUserDto, LoginDto } from './dto/auth.dto';
+import type { CreateUserReqDto, LoginReqDto } from './dto/auth.req.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +25,7 @@ export class AuthService {
     @InjectRedis() private readonly redis: Redis,
   ) {}
 
-  async createUser(user: CreateUserDto) {
+  async createUser(user: CreateUserReqDto) {
     try {
       const { id, username, email } = await this.userService.createUser(user);
       const token = await this.generateUserTokens(id);
@@ -39,23 +39,23 @@ export class AuthService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        throw new UnauthorizedException('用户名重复');
+        throw new UnauthorizedException('Duplicate username');
       }
-      throw new BadRequestException(error.message || '创建用户失败');
+      throw new BadRequestException(error.message || 'Failed to create user');
     }
   }
 
-  async validateUserLocal(info: LoginDto) {
+  async validateUserLocal(info: LoginReqDto) {
     const { username, password } = info;
     const user = await this.userService.findOneUser({
       username,
     });
     if (!user) {
-      throw new UnauthorizedException('请输入正确的用户名/密码');
+      throw new UnauthorizedException('Incorrect username/password');
     }
     const passwordValid = await argon2.verify(user.password, password);
     if (!passwordValid) {
-      throw new UnauthorizedException('密码有误');
+      throw new UnauthorizedException('Incorrect password');
     }
     return user;
   }
@@ -65,7 +65,9 @@ export class AuthService {
       id,
     });
     if (!user) {
-      throw new UnauthorizedException('登录凭证无效请重新登录');
+      throw new UnauthorizedException(
+        'Invalid login credentials, please log in again',
+      );
     }
     return user;
   }
@@ -107,22 +109,30 @@ export class AuthService {
       });
       const refreshTokenData = await this.redis.get(refreshTokenCacheKey(id));
       if (!refreshTokenData) {
-        throw new BadRequestException('刷新凭证无效请重新登录');
+        throw new BadRequestException(
+          'Invalid refresh token, please log in again',
+        );
       }
       const { refreshToken: storedRefreshToken, refreshCount } =
         JSON.parse(refreshTokenData);
       if (storedRefreshToken !== refreshToken) {
-        throw new BadRequestException('刷新凭证无效请重新登录');
+        throw new BadRequestException(
+          'Invalid refresh token, please log in again',
+        );
       }
       const maxRefreshCount = this.configService.get('REFRESH_JWT_MAX_COUNT', {
         infer: true,
       });
       if (refreshCount > maxRefreshCount) {
-        throw new BadRequestException('刷新凭证次数已达上限，请重新登录');
+        throw new BadRequestException(
+          'Refresh token limit exceeded, please log in again',
+        );
       }
       return this.generateUserTokens(id, refreshCount + 1);
     } catch (error) {
-      throw new BadRequestException('刷新凭证无效请重新登录');
+      throw new BadRequestException(
+        'Invalid refresh token, please log in again',
+      );
     }
   }
 }

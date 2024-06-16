@@ -60,7 +60,7 @@ export class EnvironmentVariables {
   MYSQL_USER: string;
 
   @IsString()
-  @IsStrongPassword()
+  // @IsStrongPassword()
   MYSQL_PASSWORD: string;
 
   @IsString()
