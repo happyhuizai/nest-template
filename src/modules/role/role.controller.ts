@@ -13,40 +13,51 @@ import { RoleService } from './role.service';
 import {
   CreateRoleReqDto,
   FindAllRoleReqDto,
-  UpdateRoleReqDto,
-} from './dto/role-req.dto';
-import { Serialize } from '../../decorators/serialize.decorator';
-import { FindAllRoleResDto, RoleItem } from './dto/role-res.dto';
-import { CustomApiResponse } from '../../shared/swagger';
+  UpdateRoleResDto,
+} from './dto/role.req.dto';
+import { RoleItem, FindAllRoleResDto } from './dto/role.res.dto';
+
+import { Serialize } from '@/decorators/serialize.decorator';
+import { OperationResDto } from '@/shared/dto/res.dto';
+import { CustomApiResponse } from '@/shared/swagger';
+import { IdReqDto } from '@/shared/dto/req.dto';
 
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
-  @Post()
-  create(@Body() createRoleReqDto: CreateRoleReqDto) {
-    return this.roleService.create(createRoleReqDto);
-  }
-
-  @Serialize(FindAllRoleResDto)
   @CustomApiResponse(RoleItem)
+  @Serialize(RoleItem)
+  @Post()
+  create(@Body() createRoleDto: CreateRoleReqDto) {
+    return this.roleService.create(createRoleDto);
+  }
+
+  @CustomApiResponse(RoleItem, 'list')
+  @Serialize(FindAllRoleResDto)
   @Get()
-  findAll(@Query() findAllRoleReqDto: FindAllRoleReqDto) {
-    return this.roleService.findAll(findAllRoleReqDto);
+  findAll(@Query() query: FindAllRoleReqDto) {
+    return this.roleService.findAll(query);
   }
 
+  @CustomApiResponse(RoleItem)
+  @Serialize(RoleItem)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roleService.findOne(+id);
+  findOne(@Param() params: IdReqDto) {
+    return this.roleService.findOne(params.id);
   }
 
+  @CustomApiResponse(OperationResDto)
+  @Serialize(OperationResDto)
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateRoleDto: UpdateRoleReqDto) {
-    return this.roleService.update(id, updateRoleDto);
+  update(@Param() params: IdReqDto, @Body() body: UpdateRoleResDto) {
+    return this.roleService.update(params.id, body);
   }
 
+  @CustomApiResponse(OperationResDto)
+  @Serialize(OperationResDto)
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.roleService.remove(id);
+  remove(@Param() params: IdReqDto) {
+    return this.roleService.remove(params.id);
   }
 }

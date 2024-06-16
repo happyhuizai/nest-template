@@ -1,64 +1,91 @@
 import { Inject, Injectable } from '@nestjs/common';
-
-import { CustomPrisma } from '../../shared/prisma.extension';
+import { CustomPrisma } from 'src/shared/prisma.extension';
 
 import type {
   CreateRoleReqDto,
   FindAllRoleReqDto,
-  UpdateRoleReqDto,
-} from './dto/role-req.dto';
+  UpdateRoleResDto,
+} from './dto/role.req.dto';
 
 @Injectable()
 export class RoleService {
   constructor(
     @Inject('PrismaService')
-    private prisma: CustomPrisma,
+    private readonly prisma: CustomPrisma,
   ) {}
-  create(createRoleReqDto: CreateRoleReqDto) {
-    return this.prisma.client.role.create({
-      data: createRoleReqDto,
-    });
+
+  async create(data: CreateRoleReqDto) {
+    try {
+      return await this.prisma.client.role.create({
+        data,
+      });
+    } catch (error) {
+      throw new Error(`Failed to create role: ${error.message}`);
+    }
   }
 
-  async findAll(findAllRoleReqDto: FindAllRoleReqDto) {
-    const { name, ...other } = findAllRoleReqDto;
-    const [items, meta] = await this.prisma.client.role
-      .paginate({
+  async findAll(query: FindAllRoleReqDto) {
+    try {
+      const { name, ...other } = query;
+      const [items, meta] = await this.prisma.client.role
+        .paginate({
+          where: {
+            name,
+          },
+        })
+        .withPages(other);
+
+      const { currentPage, totalCount } = meta;
+
+      return {
+        items,
+        currentPage,
+        totalCount,
+      };
+    } catch (error) {
+      throw new Error(`Failed to find all roles: ${error.message}`);
+    }
+  }
+
+  async findOne(id: number) {
+    try {
+      return await this.prisma.client.role.findUnique({
         where: {
-          name,
+          id,
         },
-      })
-      .withPages(other);
-    const { currentPage, totalCount } = meta;
-    return {
-      items,
-      currentPage,
-      totalCount,
-    };
+      });
+    } catch (error) {
+      throw new Error(`Failed to find role with id ${id}: ${error.message}`);
+    }
   }
 
-  findOne(id: number) {
-    return this.prisma.client.role.findUnique({
-      where: {
-        id,
-      },
-    });
+  async update(id: number, data: UpdateRoleResDto) {
+    try {
+      await this.prisma.client.role.update({
+        where: {
+          id,
+        },
+        data,
+      });
+      return { success: true };
+    } catch (error) {
+      throw new Error(`Failed to update role with id ${id}: ${error.message}`);
+    }
   }
 
-  async update(roleId: number, updateRoleDto: UpdateRoleReqDto) {
-    return this.prisma.client.role.update({
-      where: {
-        id: roleId,
-      },
-      data: updateRoleDto,
-    });
-  }
-
-  async remove(roleId: number) {
-    return this.prisma.client.role.delete({
-      where: {
-        id: roleId,
-      },
-    });
+  async remove(id: number) {
+    try {
+      await this.prisma.client.role.update({
+        where: {
+          id,
+        },
+        data: {
+          isDeleted: true,
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      throw new Error(`Failed to remove role with id ${id}: ${error.message}`);
+    }
   }
 }

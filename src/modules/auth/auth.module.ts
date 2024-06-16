@@ -9,7 +9,7 @@ import { UserModule } from '../user/user.module';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
-import type { EnvironmentVariables } from '../../shared/env.validation';
+import type { EnvironmentVariables } from '@/shared/env.validation';
 
 @Module({
   imports: [

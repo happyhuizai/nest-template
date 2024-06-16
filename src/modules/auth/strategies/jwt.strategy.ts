@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { AuthService } from '../auth.service';
 
-import type { EnvironmentVariables } from '../../../shared/env.validation';
+import type { EnvironmentVariables } from '@/shared/env.validation';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

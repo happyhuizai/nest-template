@@ -4,10 +4,10 @@ import { Reflector } from '@nestjs/core';
 import { AbilityBuilder, ForbiddenError } from '@casl/ability';
 import { PrismaService } from 'nestjs-prisma';
 
-import { POLICY_KEY } from '../decorators/check-policy.decorator';
+import { POLICY_KEY } from '../decorators/check.policy.decorator';
 import { createPrismaAbility } from '../shared/casl-prisma';
 
-import type { CheckPolicyParams } from '../decorators/check-policy.decorator';
+import type { CheckPolicyParams } from '../decorators/check.policy.decorator';
 import type { Policy } from '@prisma/client';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 
@@ -61,7 +61,7 @@ export class PolicyGuard implements CanActivate {
           some: {
             roles: {
               some: {
-                groups: {
+                positions: {
                   some: {
                     users: {
                       some: {

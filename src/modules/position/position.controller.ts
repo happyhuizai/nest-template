@@ -1,34 +1,63 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
+
 import { PositionService } from './position.service';
-import { CreatePositionDto } from './dto/create-position.dto';
-import { UpdatePositionDto } from './dto/update-position.dto';
+import {
+  CreatePositionReqDto,
+  FindAllPositionReqDto,
+  UpdatePositionResDto,
+} from './dto/position.req.dto';
+import { PositionItem, FindAllPositionResDto } from './dto/position.res.dto';
+
+import { Serialize } from '@/decorators/serialize.decorator';
+import { OperationResDto } from '@/shared/dto/res.dto';
+import { CustomApiResponse } from '@/shared/swagger';
+import { IdReqDto } from '@/shared/dto/req.dto';
 
 @Controller('position')
 export class PositionController {
   constructor(private readonly positionService: PositionService) {}
 
+  @CustomApiResponse(PositionItem)
+  @Serialize(PositionItem)
   @Post()
-  create(@Body() createPositionDto: CreatePositionDto) {
+  create(@Body() createPositionDto: CreatePositionReqDto) {
     return this.positionService.create(createPositionDto);
   }
 
+  @CustomApiResponse(PositionItem, 'list')
+  @Serialize(FindAllPositionResDto)
   @Get()
-  findAll() {
-    return this.positionService.findAll();
+  findAll(@Query() query: FindAllPositionReqDto) {
+    return this.positionService.findAll(query);
   }
 
+  @CustomApiResponse(PositionItem)
+  @Serialize(PositionItem)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.positionService.findOne(+id);
+  findOne(@Param() params: IdReqDto) {
+    return this.positionService.findOne(params.id);
   }
 
+  @CustomApiResponse(OperationResDto)
+  @Serialize(OperationResDto)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePositionDto: UpdatePositionDto) {
-    return this.positionService.update(+id, updatePositionDto);
+  update(@Param() params: IdReqDto, @Body() body: UpdatePositionResDto) {
+    return this.positionService.update(params.id, body);
   }
 
+  @CustomApiResponse(OperationResDto)
+  @Serialize(OperationResDto)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.positionService.remove(+id);
+  remove(@Param() params: IdReqDto) {
+    return this.positionService.remove(params.id);
   }
 }

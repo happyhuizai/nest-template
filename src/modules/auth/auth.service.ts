@@ -1,20 +1,21 @@
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import {
-  BadRequestException,
   Injectable,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as argon2 from 'argon2';
-import { Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { JwtService } from '@nestjs/jwt';
+import { Prisma } from '@prisma/client';
 import Redis from 'ioredis';
+import * as argon2 from 'argon2';
 
 import { UserService } from '../user/user.service';
-import { refreshTokenCacheKey } from '../../shared/redis.keys';
 
-import type { EnvironmentVariables } from '../../shared/env.validation';
+import { refreshTokenCacheKey } from '@/shared/redis.keys';
+
 import type { CreateUserReqDto, LoginReqDto } from './dto/auth.req.dto';
+import type { EnvironmentVariables } from '@/shared/env.validation';
 
 @Injectable()
 export class AuthService {
@@ -25,9 +26,9 @@ export class AuthService {
     @InjectRedis() private readonly redis: Redis,
   ) {}
 
-  async createUser(user: CreateUserReqDto) {
+  async createUser(data: CreateUserReqDto) {
     try {
-      const { id, username, email } = await this.userService.createUser(user);
+      const { id, username, email } = await this.userService.createUser(data);
       const token = await this.generateUserTokens(id);
       return {
         ...token,
@@ -45,8 +46,8 @@ export class AuthService {
     }
   }
 
-  async validateUserLocal(info: LoginReqDto) {
-    const { username, password } = info;
+  async validateUserLocal(data: LoginReqDto) {
+    const { username, password } = data;
     const user = await this.userService.findOneUser({
       username,
     });
@@ -102,9 +103,9 @@ export class AuthService {
     };
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(oldToken: string) {
     try {
-      const { id } = this.jwtService.verify(refreshToken, {
+      const { id } = this.jwtService.verify(oldToken, {
         secret: this.configService.get('JWT_REFRESH_KEY'),
       });
       const refreshTokenData = await this.redis.get(refreshTokenCacheKey(id));
@@ -113,9 +114,8 @@ export class AuthService {
           'Invalid refresh token, please log in again',
         );
       }
-      const { refreshToken: storedRefreshToken, refreshCount } =
-        JSON.parse(refreshTokenData);
-      if (storedRefreshToken !== refreshToken) {
+      const { refreshToken, refreshCount } = JSON.parse(refreshTokenData);
+      if (refreshToken !== oldToken) {
         throw new BadRequestException(
           'Invalid refresh token, please log in again',
         );

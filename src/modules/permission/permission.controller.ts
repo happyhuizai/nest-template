@@ -1,34 +1,66 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
+
 import { PermissionService } from './permission.service';
-import { CreatePermissionDto } from './dto/create-permission.dto';
-import { UpdatePermissionDto } from './dto/update-permission.dto';
+import {
+  CreatePermissionReqDto,
+  FindAllPermissionReqDto,
+  UpdatePermissionResDto,
+} from './dto/permission.req.dto';
+import {
+  PermissionItem,
+  FindAllPermissionResDto,
+} from './dto/permission.res.dto';
+
+import { Serialize } from '@/decorators/serialize.decorator';
+import { OperationResDto } from '@/shared/dto/res.dto';
+import { CustomApiResponse } from '@/shared/swagger';
+import { IdReqDto } from '@/shared/dto/req.dto';
 
 @Controller('permission')
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
 
+  @CustomApiResponse(PermissionItem)
+  @Serialize(PermissionItem)
   @Post()
-  create(@Body() createPermissionDto: CreatePermissionDto) {
+  create(@Body() createPermissionDto: CreatePermissionReqDto) {
     return this.permissionService.create(createPermissionDto);
   }
 
+  @CustomApiResponse(PermissionItem, 'list')
+  @Serialize(FindAllPermissionResDto)
   @Get()
-  findAll() {
-    return this.permissionService.findAll();
+  findAll(@Query() query: FindAllPermissionReqDto) {
+    return this.permissionService.findAll(query);
   }
 
+  @CustomApiResponse(PermissionItem)
+  @Serialize(PermissionItem)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.permissionService.findOne(+id);
+  findOne(@Param() params: IdReqDto) {
+    return this.permissionService.findOne(params.id);
   }
 
+  @CustomApiResponse(OperationResDto)
+  @Serialize(OperationResDto)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePermissionDto: UpdatePermissionDto) {
-    return this.permissionService.update(+id, updatePermissionDto);
+  update(@Param() params: IdReqDto, @Body() body: UpdatePermissionResDto) {
+    return this.permissionService.update(params.id, body);
   }
 
+  @CustomApiResponse(OperationResDto)
+  @Serialize(OperationResDto)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.permissionService.remove(+id);
+  remove(@Param() params: IdReqDto) {
+    return this.permissionService.remove(params.id);
   }
 }

@@ -14,10 +14,10 @@ export class DepartmentService {
     private readonly prisma: CustomPrisma,
   ) {}
 
-  async create(createDepartmentReqDto: CreateDepartmentReqDto) {
+  async create(data: CreateDepartmentReqDto) {
     try {
       return await this.prisma.client.department.create({
-        data: createDepartmentReqDto,
+        data,
       });
     } catch (error) {
       throw new Error(`Failed to create department: ${error.message}`);

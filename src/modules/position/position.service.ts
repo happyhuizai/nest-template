@@ -1,26 +1,97 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePositionDto } from './dto/create-position.dto';
-import { UpdatePositionDto } from './dto/update-position.dto';
+import { Inject, Injectable } from '@nestjs/common';
+import { CustomPrisma } from 'src/shared/prisma.extension';
+
+import type {
+  CreatePositionReqDto,
+  FindAllPositionReqDto,
+  UpdatePositionResDto,
+} from './dto/position.req.dto';
 
 @Injectable()
 export class PositionService {
-  create(createPositionDto: CreatePositionDto) {
-    return 'This action adds a new position';
+  constructor(
+    @Inject('PrismaService')
+    private readonly prisma: CustomPrisma,
+  ) {}
+
+  async create(data: CreatePositionReqDto) {
+    try {
+      return await this.prisma.client.position.create({
+        data,
+      });
+    } catch (error) {
+      throw new Error(`Failed to create position: ${error.message}`);
+    }
   }
 
-  findAll() {
-    return `This action returns all position`;
+  async findAll(query: FindAllPositionReqDto) {
+    try {
+      const { name, ...other } = query;
+      const [items, meta] = await this.prisma.client.position
+        .paginate({
+          where: {
+            name,
+          },
+        })
+        .withPages(other);
+
+      const { currentPage, totalCount } = meta;
+
+      return {
+        items,
+        currentPage,
+        totalCount,
+      };
+    } catch (error) {
+      throw new Error(`Failed to find all positions: ${error.message}`);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} position`;
+  async findOne(id: number) {
+    try {
+      return await this.prisma.client.position.findUnique({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      throw new Error(
+        `Failed to find position with id ${id}: ${error.message}`,
+      );
+    }
   }
 
-  update(id: number, updatePositionDto: UpdatePositionDto) {
-    return `This action updates a #${id} position`;
+  async update(id: number, data: UpdatePositionResDto) {
+    try {
+      await this.prisma.client.position.update({
+        where: {
+          id,
+        },
+        data,
+      });
+      return { success: true };
+    } catch (error) {
+      throw new Error(
+        `Failed to update position with id ${id}: ${error.message}`,
+      );
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} position`;
+  async remove(id: number) {
+    try {
+      await this.prisma.client.position.update({
+        where: {
+          id,
+        },
+        data: {
+          isDeleted: true,
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      throw new Error(
+        `Failed to remove position with id ${id}: ${error.message}`,
+      );
+    }
   }
 }

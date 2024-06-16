@@ -1,16 +1,17 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, UseGuards, Body } from '@nestjs/common';
+import { ApiTags, ApiBody } from '@nestjs/swagger';
 import { User } from '@prisma/client';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
 
-import { Public } from '../../decorators/public.decorator';
-import { LocalAuthGuard } from '../../guards/local-auth.guard';
 import { AuthService } from './auth.service';
 import {
-  CreateUserReqDto,
   LoginReqDto,
+  CreateUserReqDto,
   UserRefreshTokenReqDto,
 } from './dto/auth.req.dto';
-import { CurrentUser } from '../../decorators/current-user.decorator';
+
+import { CurrentUser } from '@/decorators/current.user.decorator';
+import { Public } from '@/decorators/public.decorator';
+import { LocalAuthGuard } from '@/guards/local.auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -18,9 +19,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiBody({ type: LoginReqDto })
-  @Post('login')
   @Public()
   @UseGuards(LocalAuthGuard)
+  @Post('login')
   async login(@CurrentUser() user: User) {
     const { username, id } = user;
     const tokens = await this.authService.generateUserTokens(id);
@@ -30,14 +31,14 @@ export class AuthController {
     };
   }
 
-  @Post('signup')
   @Public()
+  @Post('signup')
   signup(@Body() body: CreateUserReqDto) {
     return this.authService.createUser(body);
   }
 
-  @Post('refreshToken')
   @Public()
+  @Post('refreshToken')
   async refreshToken(@Body() token: UserRefreshTokenReqDto) {
     return this.authService.refreshToken(token.token);
   }

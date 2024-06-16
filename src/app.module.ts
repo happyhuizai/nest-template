@@ -14,9 +14,9 @@ import {
 import dayjs from 'dayjs';
 
 import { ResponseInterceptor } from './interceptor/response.interceptor';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtAuthGuard } from './guards/jwt.auth.guard';
 import { AuthModule } from './modules/auth/auth.module';
-import { AllExceptionFilter } from './filters/all-exception.filter';
+import { AllExceptionFilter } from './filters/all.exception.filter';
 import { validate } from './shared/env.validation';
 import { RoleModule } from './modules/role/role.module';
 import { PolicyModule } from './modules/policy/policy.module';

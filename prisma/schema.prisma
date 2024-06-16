@@ -8,93 +8,98 @@ generator client {
 }
 
 enum MenuType {
-  DIRECTORY
-  MENU
+  DIRECTORY /// 目录
+  MENU /// 菜单
 }
 
-// 部门（Departments）
+/// 部门（Departments）
 model Department {
-  id        Int        @id @default(autoincrement())
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt()
-  isDeleted Boolean    @default(false)
-  name      String
-  positions Position[] // 一个部门可以有多个职位
+  id        Int        @id @default(autoincrement()) @map("id") /// 部门ID
+  createdAt DateTime   @default(now()) /// 创建时间
+  updatedAt DateTime   @updatedAt() /// 更新时间
+  isDeleted Boolean    @default(false) /// 逻辑删除标记
+  name      String     @unique @db.VarChar(100) /// 部门名称
+  positions Position[] /// 一个部门可以有多个职位
 }
 
-// 职位（Positions）
+/// 职位（Positions）
 model Position {
-  id           Int        @id @default(autoincrement())
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt()
-  isDeleted    Boolean    @default(false)
-  name         String
-  department   Department @relation(fields: [departmentId], references: [id])
-  departmentId Int // 外键，指向部门表的ID
-  users        User[] // 一个职位可以有多个员工
-  roles        Role[] // 一个职位可以有多个角色
+  id           Int        @id @default(autoincrement()) @map("id") /// 职位ID
+  createdAt    DateTime   @default(now()) /// 创建时间
+  updatedAt    DateTime   @updatedAt() /// 更新时间
+  isDeleted    Boolean    @default(false) /// 逻辑删除标记
+  name         String     @db.VarChar(100) /// 职位名称
+  department   Department @relation(fields: [departmentId], references: [id]) /// 所属部门
+  departmentId Int /// 外键，指向部门表的ID
+  users        User[] /// 一个职位可以有多个员工
+  roles        Role[] /// 一个职位可以有多个角色
+
+  @@unique([departmentId, name]) /// 在同一部门中，职位名称唯一
 }
 
-// 员工（Users）
+/// 员工（Users）
 model User {
-  id        Int        @id @default(autoincrement())
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt()
-  isDeleted Boolean    @default(false)
-  username  String     @unique
-  email     String     @unique
-  positions Position[] // 一个员工可以拥有多个职位
+  id        Int        @id @default(autoincrement()) @map("id") /// 员工ID
+  createdAt DateTime   @default(now()) /// 创建时间
+  updatedAt DateTime   @updatedAt() /// 更新时间
+  isDeleted Boolean    @default(false) /// 逻辑删除标记
+  username  String     @unique @db.VarChar(50) /// 用户名
+  email     String     @unique @db.VarChar(100) /// 邮箱
+  password  String     @db.VarChar(100) /// 密码
+  positions Position[] /// 一个员工可以拥有多个职位
 }
 
-// 角色（Roles）
+/// 角色（Roles）
 model Role {
-  id          Int          @id @default(autoincrement())
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt()
-  isDeleted   Boolean      @default(false)
-  name        String
-  positions   Position[] // 一个角色可以对应多个职位
-  permissions Permission[] // 一个角色可以拥有多个权限
+  id          Int          @id @default(autoincrement()) @map("id") /// 角色ID
+  createdAt   DateTime     @default(now()) /// 创建时间
+  updatedAt   DateTime     @updatedAt() /// 更新时间
+  isDeleted   Boolean      @default(false) /// 逻辑删除标记
+  name        String       @unique @db.VarChar(100) /// 角色名称
+  positions   Position[] /// 一个角色可以对应多个职位
+  permissions Permission[] /// 一个角色可以拥有多个权限
 }
 
-// 权限（Permissions）
+/// 权限（Permissions）
 model Permission {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-  isDeleted Boolean  @default(false)
-  name      String   @unique()
-  roles     Role[] // 多个角色可以拥有同一权限
-  menus     Menu[] // 一个权限可以对应多个菜单
-  policies  Policy[] // 一个权限可以对应多个策略
+  id        Int      @id @default(autoincrement()) @map("id") /// 权限ID
+  createdAt DateTime @default(now()) /// 创建时间
+  updatedAt DateTime @updatedAt() /// 更新时间
+  isDeleted Boolean  @default(false) /// 逻辑删除标记
+  name      String   @unique @db.VarChar(100) /// 权限名称
+  roles     Role[] /// 多个角色可以拥有同一权限
+  menus     Menu[] /// 一个权限可以对应多个菜单
+  policies  Policy[] /// 一个权限可以对应多个策略
 }
 
-// 菜单（Menus）
+/// 菜单（Menus）
 model Menu {
-  id          Int          @id @default(autoincrement())
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt()
-  isDeleted   Boolean      @default(false)
-  name        String
-  type        MenuType // 菜单的类型
-  icon        String?
-  order       Int?
-  route       String?
-  component   String?
-  keepAlive   Boolean?
-  hidden      Boolean?     @default(false)
-  outlink     String?
-  parentId    Int?
-  permissions Permission[] // 一个菜单可以对应多个权限
+  id          Int          @id @default(autoincrement()) @map("id") /// 菜单ID
+  createdAt   DateTime     @default(now()) /// 创建时间
+  updatedAt   DateTime     @updatedAt() /// 更新时间
+  isDeleted   Boolean      @default(false) /// 逻辑删除标记
+  name        String       @db.VarChar(100) /// 菜单名称
+  type        MenuType /// 菜单的类型
+  icon        String?      @db.VarChar(100) /// 菜单图标
+  order       Int? /// 菜单排序
+  route       String?      @db.VarChar(255) /// 菜单路由
+  component   String?      @db.VarChar(255) /// 菜单组件
+  keepAlive   Boolean? /// 是否缓存
+  hidden      Boolean?     @default(false) /// 是否隐藏
+  outlink     String?      @db.VarChar(255) /// 外部链接
+  parentId    Int? /// 父菜单ID
+  permissions Permission[] /// 一个菜单可以对应多个权限
 }
 
-// 策略（Policies）
+/// 策略（Policies）
 model Policy {
-  id          Int          @id @default(autoincrement())
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt()
-  isDeleted   Boolean      @default(false)
-  action      String // 策略的动作
-  subject     String // 策略的主题
-  permissions Permission[] // 一个策略可以对应多个权限
+  id          Int          @id @default(autoincrement()) @map("id") /// 策略ID
+  createdAt   DateTime     @default(now()) /// 创建时间
+  updatedAt   DateTime     @updatedAt() /// 更新时间
+  isDeleted   Boolean      @default(false) /// 逻辑删除标记
+  action      String       @db.VarChar(50) /// 策略的动作
+  subject     String       @db.VarChar(50) /// 策略的主题
+  permissions Permission[] /// 一个策略可以对应多个权限
+
+  @@unique([action, subject]) /// 同一策略的 action 和 subject 的组合唯一
 }
