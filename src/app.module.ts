@@ -38,27 +38,8 @@ import type { EnvironmentVariables } from './shared/env.validation';
     LoggerModule.forRoot({
       pinoHttp: {
         timestamp: () => `,"time":"${dayjs().format('YYYY-MM-DD HH:mm:ssZ')}"`,
-        // serializers: {
-        //   req(req) {
-        //     req.body = req.raw.body;
-        //     return req;
-        //   },
-        // },
       },
     }),
-    // PrismaModule.forRoot({
-    //   isGlobal: true,
-    //   prismaServiceOptions: {
-    //     middlewares: [
-    //       loggingMiddleware({
-    //         logger: new Logger('PrismaMiddleware'),
-    //         logLevel: 'log',
-    //         logMessage: (query: QueryInfo) =>
-    //           `[Prisma Query] ${query.model}.${query.action} - ${query.executionTime}ms`,
-    //       }),
-    //     ],
-    //   },
-    // }),
     CustomPrismaModule.forRootAsync({
       isGlobal: true,
       name: 'PrismaService',
