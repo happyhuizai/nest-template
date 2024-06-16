@@ -1,24 +1,17 @@
-import { Expose } from 'class-transformer';
-import { IsOptional, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class PaginationResDto<T> {
-  @IsOptional()
-  @IsString()
-  cursor: string;
-
-  @IsOptional()
-  @IsString()
-  limit: number;
-  @Expose()
+  @ApiProperty()
+  currentPage: number;
+  @ApiProperty()
+  totalItems: number;
+  @ApiProperty()
   items: T[];
 }
 
-export class ResSuccessDto<T = unknown> {
+export class ResSuccessResDto<T = unknown> {
+  @ApiProperty()
   success: boolean;
+  @ApiProperty()
   data: T;
-}
-
-export class ResFailDto {
-  success: boolean;
-  message: string;
 }

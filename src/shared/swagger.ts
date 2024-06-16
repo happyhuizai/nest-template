@@ -1,7 +1,16 @@
-import { Logger } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger, applyDecorators } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiExtraModels,
+  ApiOkResponse,
+  DocumentBuilder,
+  SwaggerModule,
+  getSchemaPath,
+} from '@nestjs/swagger';
 
-import type { INestApplication } from '@nestjs/common';
+import { PaginationResDto, ResSuccessResDto } from './dto/res.dto';
+
+import type { INestApplication, Type } from '@nestjs/common';
 import type { SwaggerCustomOptions } from '@nestjs/swagger';
 
 export const setupSwagger = async (app: INestApplication) => {
@@ -37,4 +46,40 @@ export const setupSwagger = async (app: INestApplication) => {
     ...customOptions,
   });
   logger.log(`Docs will serve on /docs, 'NestApplication`);
+};
+
+export const CustomApiResponse = <TModel extends Type<unknown>>(
+  model: TModel,
+  type?: 'list',
+) => {
+  const successSchema =
+    type && type === 'list'
+      ? {
+          $ref: getSchemaPath(PaginationResDto),
+          properties: {
+            items: {
+              type: 'array',
+              $ref: getSchemaPath(model),
+            },
+          },
+        }
+      : {
+          $ref: getSchemaPath(model),
+        };
+  return applyDecorators(
+    ApiBearerAuth('accessToken'),
+    ApiExtraModels(ResSuccessResDto, PaginationResDto, model),
+    ApiOkResponse({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(ResSuccessResDto) },
+          {
+            properties: {
+              data: successSchema,
+            },
+          },
+        ],
+      },
+    }),
+  );
 };

@@ -1,138 +1,142 @@
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-}
+// datasource db {
+//   provider = "mysql"
+//   url      = env("DATABASE_URL")
+// }
 
-generator client {
-  provider = "prisma-client-js"
-}
+// generator client {
+//   provider = "prisma-client-js"
+// }
 
-enum MenuType {
-  DIRECTORY
-  MENU
-}
+// generator class_validator {
+//   provider = "prisma-class-validator-generator"
+// }
 
-model Group {
-  id        Int         @id() @default(autoincrement())
-  isDeleted Boolean     @default(false)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt()
-  name      String
-  roles     GroupRole[]
-  users     UserGroup[]
-}
+// enum MenuType {
+//   DIRECTORY
+//   MENU
+// }
 
-model GroupRole {
-  id      Int   @id() @default(autoincrement())
-  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId Int
-  role    Role  @relation(fields: [roleId], references: [id])
-  roleId  Int
+// model Group {
+//   id        Int         @id() @default(autoincrement())
+//   isDeleted Boolean     @default(false)
+//   createdAt DateTime    @default(now())
+//   updatedAt DateTime    @updatedAt()
+//   name      String
+//   roles     GroupRole[]
+//   users     UserGroup[]
+// }
 
-  @@unique([groupId, roleId])
-}
+// model GroupRole {
+//   id      Int   @id() @default(autoincrement())
+//   group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+//   groupId Int
+//   role    Role  @relation(fields: [roleId], references: [id])
+//   roleId  Int
 
-model UserGroup {
-  id        Int      @id() @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int
-  group     Group    @relation(fields: [groupId], references: [id])
-  groupId   Int
+//   @@unique([groupId, roleId])
+// }
 
-  @@unique([userId, groupId])
-}
+// model UserGroup {
+//   id        Int      @id() @default(autoincrement())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt()
+//   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   userId    Int
+//   group     Group    @relation(fields: [groupId], references: [id])
+//   groupId   Int
 
-model User {
-  id        Int         @id() @default(autoincrement())
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt()
-  isDeleted Boolean     @default(false)
-  username  String      @unique()
-  email     String      @unique()
-  password  String
-  groups    UserGroup[]
-}
+//   @@unique([userId, groupId])
+// }
 
-model Role {
-  id          Int              @id() @default(autoincrement())
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt()
-  isDeleted   Boolean          @default(false)
-  name        String           @unique()
-  groupRoles  GroupRole[]
-  permissions PermissionRole[]
-}
+// model User {
+//   id        Int         @id() @default(autoincrement())
+//   createdAt DateTime    @default(now())
+//   updatedAt DateTime    @updatedAt()
+//   isDeleted Boolean     @default(false)
+//   username  String      @unique()
+//   email     String      @unique()
+//   password  String
+//   groups    UserGroup[]
+// }
 
-model PermissionRole {
-  id           Int        @id() @default(autoincrement())
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  roleId       Int
-  permission   Permission @relation(fields: [permissionId], references: [id])
-  permissionId Int
+// model Role {
+//   id          Int              @id() @default(autoincrement())
+//   createdAt   DateTime         @default(now())
+//   updatedAt   DateTime         @updatedAt()
+//   isDeleted   Boolean          @default(false)
+//   name        String           @unique()
+//   groupRoles  GroupRole[]
+//   permissions PermissionRole[]
+// }
 
-  @@unique([roleId, permissionId])
-}
+// model PermissionRole {
+//   id           Int        @id() @default(autoincrement())
+//   role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+//   roleId       Int
+//   permission   Permission @relation(fields: [permissionId], references: [id])
+//   permissionId Int
 
-model Permission {
-  id        Int                @id() @default(autoincrement())
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt()
-  isDeleted Boolean            @default(false)
-  name      String             @unique()
-  roles     PermissionRole[]
-  menus     PermissionMenu[]
-  policies  PermissionPolicy[]
-}
+//   @@unique([roleId, permissionId])
+// }
 
-model PermissionPolicy {
-  id           Int        @id() @default(autoincrement())
-  policy       Policy     @relation(fields: [policyId], references: [id], onDelete: Cascade)
-  policyId     Int
-  permission   Permission @relation(fields: [permissionId], references: [id])
-  permissionId Int
+// model Permission {
+//   id        Int                @id() @default(autoincrement())
+//   createdAt DateTime           @default(now())
+//   updatedAt DateTime           @updatedAt()
+//   isDeleted Boolean            @default(false)
+//   name      String             @unique()
+//   roles     PermissionRole[]
+//   menus     PermissionMenu[]
+//   policies  PermissionPolicy[]
+// }
 
-  @@unique([policyId, permissionId])
-}
+// model PermissionPolicy {
+//   id           Int        @id() @default(autoincrement())
+//   policy       Policy     @relation(fields: [policyId], references: [id], onDelete: Cascade)
+//   policyId     Int
+//   permission   Permission @relation(fields: [permissionId], references: [id])
+//   permissionId Int
 
-model Policy {
-  id          Int                @id() @default(autoincrement())
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt()
-  action      String
-  subject     String
-  fields      Json?
-  conditions  Json?
-  inverted    Boolean?           @default(false)
-  reason      String?
-  permissions PermissionPolicy[]
-}
+//   @@unique([policyId, permissionId])
+// }
 
-model PermissionMenu {
-  id           Int        @id() @default(autoincrement())
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  permissionId Int
-  menu         Menu       @relation(fields: [menuId], references: [id])
-  menuId       Int
+// model Policy {
+//   id          Int                @id() @default(autoincrement())
+//   createdAt   DateTime           @default(now())
+//   updatedAt   DateTime           @updatedAt()
+//   action      String
+//   subject     String
+//   fields      Json?
+//   conditions  Json?
+//   inverted    Boolean?           @default(false)
+//   reason      String?
+//   permissions PermissionPolicy[]
+// }
 
-  @@unique([permissionId, menuId])
-}
+// model PermissionMenu {
+//   id           Int        @id() @default(autoincrement())
+//   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+//   permissionId Int
+//   menu         Menu       @relation(fields: [menuId], references: [id])
+//   menuId       Int
 
-model Menu {
-  id          Int              @id() @default(autoincrement())
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt()
-  isDeleted   Boolean          @default(false)
-  name        String
-  type        MenuType
-  icon        String?
-  order       Int?
-  route       String?
-  component   String?
-  keepAlive   Boolean?
-  hidden      Boolean?         @default(false)
-  outlink     String?
-  parentId    Int?
-  permissions PermissionMenu[]
-}
+//   @@unique([permissionId, menuId])
+// }
+
+// model Menu {
+//   id          Int              @id() @default(autoincrement())
+//   createdAt   DateTime         @default(now())
+//   updatedAt   DateTime         @updatedAt()
+//   isDeleted   Boolean          @default(false)
+//   name        String
+//   type        MenuType
+//   icon        String?
+//   order       Int?
+//   route       String?
+//   component   String?
+//   keepAlive   Boolean?
+//   hidden      Boolean?         @default(false)
+//   outlink     String?
+//   parentId    Int?
+//   permissions PermissionMenu[]
+// }

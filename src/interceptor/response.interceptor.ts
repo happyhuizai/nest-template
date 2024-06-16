@@ -4,6 +4,7 @@ import { plainToInstance } from 'class-transformer';
 import { Reflector } from '@nestjs/core';
 import { SERIALIZE_KEY } from 'src/decorators/serialize.decorator';
 
+import type { ResSuccessResDto } from '../shared/dto/res.dto';
 import type { ClassConstructor } from 'class-transformer';
 import type {
   NestInterceptor,
@@ -11,7 +12,6 @@ import type {
   CallHandler,
 } from '@nestjs/common';
 import type { Observable } from 'rxjs';
-import type { ResSuccessDto } from '../shared/dto/res.dto';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
@@ -19,7 +19,7 @@ export class ResponseInterceptor implements NestInterceptor {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Observable<ResSuccessDto<unknown>> {
+  ): Observable<ResSuccessResDto<unknown>> {
     const classSerialize: ClassConstructor<unknown> = this.reflector.get<
       ClassConstructor<any>
     >(SERIALIZE_KEY, context.getHandler());

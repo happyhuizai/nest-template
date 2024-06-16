@@ -2,7 +2,11 @@ import { Catch, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 
 import type { ArgumentsHost, ExceptionFilter } from '@nestjs/common';
-import type { ResFailDto } from '../shared/dto/res.dto';
+
+export class ResFailDto {
+  success: boolean;
+  message: string;
+}
 
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {

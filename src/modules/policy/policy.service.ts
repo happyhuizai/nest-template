@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 
 import type { CreatePolicyDto } from './dto/create-policy.dto';
@@ -6,7 +5,7 @@ import type { UpdatePolicyDto } from './dto/update-policy.dto';
 
 @Injectable()
 export class PolicyService {
-  create(createPolicyDto: CreatePolicyDto) {
+  create(_createPolicyDto: CreatePolicyDto) {
     return 'This action adds a new policy';
   }
 
@@ -18,7 +17,7 @@ export class PolicyService {
     return `This action returns a #${id} policy`;
   }
 
-  update(id: number, updatePolicyDto: UpdatePolicyDto) {
+  update(id: number, _updatePolicyDto: UpdatePolicyDto) {
     return `This action updates a #${id} policy`;
   }
 

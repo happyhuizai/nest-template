@@ -1,37 +1,41 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'nestjs-prisma';
+import { Inject, Injectable } from '@nestjs/common';
+
+import { CustomPrisma } from '../../shared/prisma.extension';
 
 import type { CreateMenuDto } from './dto/create-menu.dto';
 import type { UpdateMenuDto } from './dto/update-menu.dto';
 
 @Injectable()
 export class MenuService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    @Inject('PrismaService')
+    private prisma: CustomPrisma,
+  ) {}
   create(createMenuDto: CreateMenuDto) {
-    return this.prisma.menu.create({
+    return this.prisma.client.menu.create({
       data: createMenuDto,
     });
   }
 
   findAll() {
-    return this.prisma.menu.findMany();
+    return this.prisma.client.menu.findMany();
   }
 
   findOne(id: number) {
-    return this.prisma.menu.findUnique({
+    return this.prisma.client.menu.findUnique({
       where: { id },
     });
   }
 
   update(id: number, updateMenuDto: UpdateMenuDto) {
-    return this.prisma.menu.update({
+    return this.prisma.client.menu.update({
       where: { id },
       data: updateMenuDto,
     });
   }
 
   remove(id: number) {
-    return this.prisma.menu.delete({
+    return this.prisma.client.menu.delete({
       where: { id },
     });
   }

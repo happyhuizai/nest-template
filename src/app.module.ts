@@ -1,17 +1,8 @@
-import {
-  BadRequestException,
-  Module,
-  ValidationPipe,
-  Logger,
-} from '@nestjs/common';
+import { BadRequestException, Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
-import {
-  PrismaModule,
-  loggingMiddleware,
-  PrismaClientExceptionFilter,
-} from 'nestjs-prisma';
+import { PrismaClientExceptionFilter, CustomPrismaModule } from 'nestjs-prisma';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import {
   APP_FILTER,
@@ -31,8 +22,8 @@ import { RoleModule } from './modules/role/role.module';
 import { PolicyModule } from './modules/policy/policy.module';
 import { GroupModule } from './modules/group/group.module';
 import { MenuModule } from './modules/menu/menu.module';
+import { extendedPrismaClient } from './shared/prisma.extension';
 
-import type { QueryInfo } from 'nestjs-prisma';
 import type { EnvironmentVariables } from './shared/env.validation';
 
 @Module({
@@ -55,17 +46,24 @@ import type { EnvironmentVariables } from './shared/env.validation';
         // },
       },
     }),
-    PrismaModule.forRoot({
+    // PrismaModule.forRoot({
+    //   isGlobal: true,
+    //   prismaServiceOptions: {
+    //     middlewares: [
+    //       loggingMiddleware({
+    //         logger: new Logger('PrismaMiddleware'),
+    //         logLevel: 'log',
+    //         logMessage: (query: QueryInfo) =>
+    //           `[Prisma Query] ${query.model}.${query.action} - ${query.executionTime}ms`,
+    //       }),
+    //     ],
+    //   },
+    // }),
+    CustomPrismaModule.forRootAsync({
       isGlobal: true,
-      prismaServiceOptions: {
-        middlewares: [
-          loggingMiddleware({
-            logger: new Logger('PrismaMiddleware'),
-            logLevel: 'log',
-            logMessage: (query: QueryInfo) =>
-              `[Prisma Query] ${query.model}.${query.action} - ${query.executionTime}ms`,
-          }),
-        ],
+      name: 'PrismaService',
+      useFactory: () => {
+        return extendedPrismaClient;
       },
     }),
     RedisModule.forRootAsync({
