@@ -31,12 +31,12 @@ model Position {
   name         String
   department   Department @relation(fields: [departmentId], references: [id])
   departmentId Int // 外键，指向部门表的ID
-  employees    Employee[] // 一个职位可以有多个员工
+  users        User[] // 一个职位可以有多个员工
   roles        Role[] // 一个职位可以有多个角色
 }
 
-// 员工（Employees）
-model Employee {
+// 员工（Users）
+model User {
   id        Int        @id @default(autoincrement())
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt()

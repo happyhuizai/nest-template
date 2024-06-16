@@ -22,6 +22,9 @@ import { RoleModule } from './modules/role/role.module';
 import { PolicyModule } from './modules/policy/policy.module';
 import { MenuModule } from './modules/menu/menu.module';
 import { extendedPrismaClient } from './shared/prisma.extension';
+import { DepartmentModule } from './modules/department/department.module';
+import { PositionModule } from './modules/position/position.module';
+import { PermissionModule } from './modules/permission/permission.module';
 
 import type { EnvironmentVariables } from './shared/env.validation';
 
@@ -71,6 +74,9 @@ import type { EnvironmentVariables } from './shared/env.validation';
     RoleModule,
     MenuModule,
     PolicyModule,
+    DepartmentModule,
+    PositionModule,
+    PermissionModule,
   ],
   providers: [
     {

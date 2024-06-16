@@ -15,3 +15,8 @@ export class ResSuccessResDto<T = unknown> {
   @ApiProperty()
   data: T;
 }
+
+export class OperationResDto {
+  @ApiProperty()
+  success: boolean;
+}

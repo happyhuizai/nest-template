@@ -1,17 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsInt, IsPositive } from 'class-validator';
 
 export class PaginationReqDto {
   @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
+  @IsPositive()
   @Type(() => Number)
   page: number;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
+  @IsPositive()
   @Type(() => Number)
   limit: number;
+}
+
+export class IdReqDto {
+  @ApiProperty()
+  @IsInt()
+  @IsPositive()
+  @Type(() => Number)
+  id: number;
 }
