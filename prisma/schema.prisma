@@ -12,55 +12,71 @@ enum MenuType {
   MENU
 }
 
-model Group {
-  id        Int      @id() @default(autoincrement())
-  isDeleted Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
+// 部门（Departments）
+model Department {
+  id        Int        @id @default(autoincrement())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt()
+  isDeleted Boolean    @default(false)
   name      String
-  users     User[]
-  roles     Role[]
+  positions Position[] // 一个部门可以有多个职位
 }
 
-model User {
-  id        Int      @id() @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-  isDeleted Boolean  @default(false)
-  username  String   @unique()
-  email     String   @unique()
-  password  String
-  groups    Group[]
+// 职位（Positions）
+model Position {
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt()
+  isDeleted    Boolean    @default(false)
+  name         String
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId Int // 外键，指向部门表的ID
+  employees    Employee[] // 一个职位可以有多个员工
+  roles        Role[] // 一个职位可以有多个角色
 }
 
+// 员工（Employees）
+model Employee {
+  id        Int        @id @default(autoincrement())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt()
+  isDeleted Boolean    @default(false)
+  username  String     @unique
+  email     String     @unique
+  positions Position[] // 一个员工可以拥有多个职位
+}
+
+// 角色（Roles）
 model Role {
-  id          Int          @id() @default(autoincrement())
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt()
-  isDeleted   Boolean      @default(false)
-  name        String       @unique()
-  groups      Group[]
-  permissions Permission[]
-}
-
-model Permission {
-  id        Int      @id() @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-  isDeleted Boolean  @default(false)
-  name      String   @unique()
-  roles     Role[]
-  menus     Menu[]
-  policies  Policy[]
-}
-
-model Menu {
-  id          Int          @id() @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt()
   isDeleted   Boolean      @default(false)
   name        String
-  type        MenuType
+  positions   Position[] // 一个角色可以对应多个职位
+  permissions Permission[] // 一个角色可以拥有多个权限
+}
+
+// 权限（Permissions）
+model Permission {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+  isDeleted Boolean  @default(false)
+  name      String   @unique()
+  roles     Role[] // 多个角色可以拥有同一权限
+  menus     Menu[] // 一个权限可以对应多个菜单
+  policies  Policy[] // 一个权限可以对应多个策略
+}
+
+// 菜单（Menus）
+model Menu {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt()
+  isDeleted   Boolean      @default(false)
+  name        String
+  type        MenuType // 菜单的类型
   icon        String?
   order       Int?
   route       String?
@@ -69,14 +85,16 @@ model Menu {
   hidden      Boolean?     @default(false)
   outlink     String?
   parentId    Int?
-  permissions Permission[]
+  permissions Permission[] // 一个菜单可以对应多个权限
 }
 
+// 策略（Policies）
 model Policy {
-  id          Int          @id() @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt()
-  action      String
-  subject     String
-  permissions Permission[]
+  isDeleted   Boolean      @default(false)
+  action      String // 策略的动作
+  subject     String // 策略的主题
+  permissions Permission[] // 一个策略可以对应多个权限
 }

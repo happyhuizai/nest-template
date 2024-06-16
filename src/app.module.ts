@@ -20,7 +20,6 @@ import { AllExceptionFilter } from './filters/all-exception.filter';
 import { validate } from './shared/env.validation';
 import { RoleModule } from './modules/role/role.module';
 import { PolicyModule } from './modules/policy/policy.module';
-import { GroupModule } from './modules/group/group.module';
 import { MenuModule } from './modules/menu/menu.module';
 import { extendedPrismaClient } from './shared/prisma.extension';
 
@@ -71,7 +70,6 @@ import type { EnvironmentVariables } from './shared/env.validation';
     AuthModule,
     RoleModule,
     MenuModule,
-    GroupModule,
     PolicyModule,
   ],
   providers: [
